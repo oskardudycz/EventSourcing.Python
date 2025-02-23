@@ -1,5 +1,6 @@
 from uuid import uuid4 as uuid
 from datetime import datetime, timezone
+from sqlalchemy.orm import Session
 
 from events_definition.src.events_definition import (
     PricedProductItem,
@@ -12,7 +13,7 @@ from events_definition.src.events_definition import (
 )
 
 
-def test_event_types_should_be_defined(db_session):
+def test_event_types_should_be_defined(db_session: Session) -> None:
     """
     Test that the event types are defined correctly.
     """
