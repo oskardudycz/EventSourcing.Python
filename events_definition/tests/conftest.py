@@ -1,8 +1,9 @@
 import os
 import pytest
+from typing import Generator, cast
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from testcontainers.postgres import PostgresContainer
+from testcontainers.postgres import PostgresContainer  # type: ignore
 
 
 postgres = PostgresContainer("postgres:17-alpine")
@@ -11,10 +12,10 @@ connection_url = None
 
 
 @pytest.fixture(scope="session", autouse=True)
-def setup(request):
+def setup(request: pytest.FixtureRequest) -> str:
     postgres.start()
 
-    def remove_container():
+    def remove_container() -> None:
         postgres.stop()
 
     request.addfinalizer(remove_container)
@@ -25,11 +26,11 @@ def setup(request):
     os.environ["DB_PASSWORD"] = postgres.password
     os.environ["DB_NAME"] = postgres.dbname
     global connection_url
-    return postgres.get_connection_url()
+    return cast(str, postgres.get_connection_url())
 
 
 @pytest.fixture(scope="session")
-def db_session(setup):
+def db_session(setup: str) -> Generator[Session, None, None]:
     engine = create_engine(setup)
     with Session(engine) as session:
         yield session
