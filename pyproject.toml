@@ -1,0 +1,22 @@
+[project]
+name = "es-workshop"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.10.6",
+    "sqlalchemy>=2.0.38",
+]
+
+[tool.uv.workspace]
+members = ["events_definition", "getting_state_from_events", "appending_events_db", "getting_state_from_events_db"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.1.0",
+    "psycopg>=3.2.5",
+    "psycopg2-binary>=2.9.10",
+    "pytest>=8.3.4",
+    "testcontainers[postgres]>=4.9.1",
+]
