@@ -1,0 +1,17 @@
+[project]
+name = "getting-state-from-events"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mateusz Kubaszek", email = "mkubasz@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+getting-state-from-events = "getting_state_from_events:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

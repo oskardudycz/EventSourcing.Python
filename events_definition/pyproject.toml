@@ -1,0 +1,17 @@
+[project]
+name = "events-definition"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mateusz Kubaszek", email = "mkubasz@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+events-definition = "events_definition:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
