@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, ClassVar
 from pydantic import BaseModel
 from datetime import datetime
 from enum import StrEnum
@@ -11,7 +11,7 @@ class ShoppingCartStatus(StrEnum):
 
 
 class Event(BaseModel):
-    type: str
+    type: ClassVar[str]
     data: BaseModel
 
     class Config:
@@ -28,7 +28,7 @@ class PricedProductItem(ProductItem):
 
 
 class ShoppingCartOpened(Event):
-    type: Literal["ShoppingCartOpened"] = "ShoppingCartOpened"
+    type: ClassVar[Literal["ShoppingCartOpened"]] = "ShoppingCartOpened"
 
     class Data(BaseModel):
         shopping_cart_id: str
@@ -39,7 +39,9 @@ class ShoppingCartOpened(Event):
 
 
 class ProductItemAddedToShoppingCart(Event):
-    type: Literal["ProductItemAddedToShoppingCart"] = "ProductItemAddedToShoppingCart"
+    type: ClassVar[Literal["ProductItemAddedToShoppingCart"]] = (
+        "ProductItemAddedToShoppingCart"
+    )
 
     class Data(BaseModel):
         shopping_cart_id: str
@@ -49,7 +51,7 @@ class ProductItemAddedToShoppingCart(Event):
 
 
 class ProductItemRemovedFromShoppingCart(Event):
-    type: Literal["ProductItemRemovedFromShoppingCart"] = (
+    type: ClassVar[Literal["ProductItemRemovedFromShoppingCart"]] = (
         "ProductItemRemovedFromShoppingCart"
     )
 
@@ -61,7 +63,7 @@ class ProductItemRemovedFromShoppingCart(Event):
 
 
 class ShoppingCartConfirmed(Event):
-    type: Literal["ShoppingCartConfirmed"] = "ShoppingCartConfirmed"
+    type: ClassVar[Literal["ShoppingCartConfirmed"]] = "ShoppingCartConfirmed"
 
     class Data(BaseModel):
         shopping_cart_id: str
@@ -71,7 +73,7 @@ class ShoppingCartConfirmed(Event):
 
 
 class ShoppingCartCanceled(Event):
-    type: Literal["ShoppingCartCanceled"] = "ShoppingCartCanceled"
+    type: ClassVar[Literal["ShoppingCartCanceled"]] = "ShoppingCartCanceled"
 
     class Data(BaseModel):
         shopping_cart_id: str

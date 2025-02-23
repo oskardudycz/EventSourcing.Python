@@ -50,3 +50,7 @@ help:
 	@echo "  test-02  - Run tests for appending_events_db"
 	@echo "  test-03  - Run tests for getting_state_from_events"
 	@echo "  test-04  - Run tests for getting_state_from_events_db"
+
+mypy:
+	@echo "Running mypy..."
+	@uv run mypy .
