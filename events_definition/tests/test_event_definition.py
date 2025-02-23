@@ -1,7 +1,7 @@
 from uuid import uuid4 as uuid
 from datetime import datetime, timezone
 
-from events_definition.src.events_definition.app import (
+from events_definition.src.events_definition import (
     PricedProductItem,
     ShoppingCartEvent,
     ShoppingCartOpened,
