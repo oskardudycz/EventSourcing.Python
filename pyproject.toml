@@ -12,8 +12,12 @@ dependencies = [
 [tool.uv.workspace]
 members = ["events_definition", "getting_state_from_events", "appending_events_db", "getting_state_from_events_db"]
 
+[tool.mypy]
+strict = true
+
 [dependency-groups]
 dev = [
+    "mypy>=1.15.0",
     "pre-commit>=4.1.0",
     "psycopg>=3.2.5",
     "psycopg2-binary>=2.9.10",
