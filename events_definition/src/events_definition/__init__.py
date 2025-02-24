@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Literal, ClassVar
 from pydantic import BaseModel
 from datetime import datetime
@@ -24,7 +25,7 @@ class ProductItem(BaseModel):
 
 
 class PricedProductItem(ProductItem):
-    unit_price: float
+    unit_price: Decimal
 
 
 class ShoppingCartOpened(Event):
