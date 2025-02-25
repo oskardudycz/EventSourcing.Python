@@ -8,7 +8,6 @@ PKG_04 = getting_state_from_events_db
 
 # Default target to run all tests
 test: test-01 test-02 test-03 test-04
-
 # Individual package test targets
 test-01:
 	@echo "Running tests for $(PKG_01)..."

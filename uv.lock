@@ -5,10 +5,16 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "appending-events-db",
+    "application-logic-db",
+    "business-logic",
+    "business-logic-tests",
     "es-workshop",
     "events-definition",
     "getting-state-from-events",
     "getting-state-from-events-db",
+    "optimistic-concurrency-db",
+    "projections-single-stream",
+    "projections-single-stream-idempotency",
 ]
 
 [[package]]
@@ -24,6 +30,21 @@ wheels = [
 name = "appending-events-db"
 version = "0.1.0"
 source = { editable = "appending_events_db" }
+
+[[package]]
+name = "application-logic-db"
+version = "0.1.0"
+source = { editable = "application_logic_db" }
+
+[[package]]
+name = "business-logic"
+version = "0.1.0"
+source = { editable = "business_logic" }
+
+[[package]]
+name = "business-logic-tests"
+version = "0.1.0"
+source = { editable = "business_logic_tests" }
 
 [[package]]
 name = "certifi"
@@ -245,6 +266,11 @@ wheels = [
 ]
 
 [[package]]
+name = "optimistic-concurrency-db"
+version = "0.1.0"
+source = { editable = "optimistic_concurrency_db" }
+
+[[package]]
 name = "packaging"
 version = "24.2"
 source = { registry = "https://pypi.org/simple" }
@@ -286,6 +312,16 @@ sdist = { url = "https://files.pythonhosted.org/packages/2a/13/b62d075317d868607
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/b3/df14c580d82b9627d173ceea305ba898dca135feb360b6d84019d0803d3b/pre_commit-4.1.0-py2.py3-none-any.whl", hash = "sha256:d29e7cb346295bcc1cc75fc3e92e343495e3ea0196c9ec6ba53f49f10ab6ae7b", size = 220560 },
 ]
+
+[[package]]
+name = "projections-single-stream"
+version = "0.1.0"
+source = { editable = "projections_single_stream" }
+
+[[package]]
+name = "projections-single-stream-idempotency"
+version = "0.1.0"
+source = { editable = "projections_single_stream_idempotency" }
 
 [[package]]
 name = "psycopg"
