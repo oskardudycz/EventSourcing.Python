@@ -1,0 +1,17 @@
+[project]
+name = "projections-single-stream-idempotency"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mateusz Kubaszek", email = "mkubasz@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+projections-single-stream-idempotency = "projections_single_stream_idempotency:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

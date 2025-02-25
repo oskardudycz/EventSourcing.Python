@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["events_definition", "getting_state_from_events", "appending_events_db", "getting_state_from_events_db"]
+members = ["events_definition", "getting_state_from_events", "appending_events_db", "getting_state_from_events_db", "business_logic", "business_logic_tests", "application_logic_db", "optimistic_concurrency_db", "projections_single_stream", "projections_single_stream_idempotency"]
 
 [tool.mypy]
 strict = true

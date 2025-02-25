@@ -1,0 +1,17 @@
+[project]
+name = "business-logic"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mateusz Kubaszek", email = "mkubasz@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+business-logic = "business_logic:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

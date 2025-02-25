@@ -1,0 +1,17 @@
+[project]
+name = "optimistic-concurrency-db"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mateusz Kubaszek", email = "mkubasz@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+optimistic-concurrency-db = "optimistic_concurrency_db:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
