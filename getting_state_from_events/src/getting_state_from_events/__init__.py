@@ -105,7 +105,7 @@ class ShoppingCart(BaseModel):
         frozen = True
 
 
-def handle_shopping_cart_opened(
+def apply_shopping_cart_opened(
     event: ShoppingCartOpened, _: ShoppingCart
 ) -> ShoppingCart:
     return ShoppingCart(
@@ -117,7 +117,7 @@ def handle_shopping_cart_opened(
     )
 
 
-def handle_product_item_added(
+def apply_product_item_added(
     event: ProductItemAddedToShoppingCart, state: ShoppingCart
 ) -> ShoppingCart:
     """
@@ -150,7 +150,7 @@ def handle_product_item_added(
     return ShoppingCart(**state_dict, product_items=processed_items)
 
 
-def handle_product_item_removed(
+def apply_product_item_removed(
     event: ProductItemRemovedFromShoppingCart, state: ShoppingCart
 ) -> ShoppingCart:
     """
@@ -182,7 +182,7 @@ def handle_product_item_removed(
     )
 
 
-def handle_shopping_cart_confirmed(
+def apply_shopping_cart_confirmed(
     event: ShoppingCartConfirmed, state: ShoppingCart
 ) -> ShoppingCart:
     return ShoppingCart(
@@ -191,7 +191,7 @@ def handle_shopping_cart_confirmed(
     )
 
 
-def handle_shopping_cart_canceled(
+def apply_shopping_cart_canceled(
     event: ShoppingCartCanceled, state: ShoppingCart
 ) -> ShoppingCart:
     return ShoppingCart(
@@ -199,21 +199,20 @@ def handle_shopping_cart_canceled(
     )
 
 
-# Event handler mapping
-EVENT_HANDLERS = {
-    ShoppingCartOpened.type: handle_shopping_cart_opened,
-    ProductItemAddedToShoppingCart.type: handle_product_item_added,
-    ProductItemRemovedFromShoppingCart.type: handle_product_item_removed,
-    ShoppingCartConfirmed.type: handle_shopping_cart_confirmed,
-    ShoppingCartCanceled.type: handle_shopping_cart_canceled,
-}
-
-
 def evolve(event: Event, state: ShoppingCart) -> ShoppingCart:
-    handler = EVENT_HANDLERS.get(event.type)
-    if handler is None:
-        raise ValueError(f"Unhandled event type: {event.type}")
-    return handler(event, state)  # type: ignore
+    match event:
+        case ShoppingCartOpened():
+            return apply_shopping_cart_opened(event, state)
+        case ProductItemAddedToShoppingCart():
+            return apply_product_item_added(event, state)
+        case ProductItemRemovedFromShoppingCart():
+            return apply_product_item_removed(event, state)
+        case ShoppingCartConfirmed():
+            return apply_shopping_cart_confirmed(event, state)
+        case ShoppingCartCanceled():
+            return apply_shopping_cart_canceled(event, state)
+        case _:
+            raise ValueError(f"Unhandled event type: {event.type}")
 
 
 def get_shopping_cart_from_events(events: list[ShoppingCartEvent]) -> ShoppingCart:
