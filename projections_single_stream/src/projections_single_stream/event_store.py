@@ -1,4 +1,5 @@
 from typing import Generic, TypeVar, Callable, Protocol, cast
+from collections import defaultdict
 from uuid import uuid4
 from pydantic import BaseModel
 from projections_single_stream.src.projections_single_stream.model import Event
@@ -31,7 +32,7 @@ T = TypeVar("T", bound=EventWithTypeAndData)
 
 class EventStore(Generic[T]):
     def __init__(self) -> None:
-        self.streams: dict[str, list[T]] = {}
+        self.streams: dict[str, list[T]] = defaultdict(list)
         self.handlers: list[EventHandler] = []
 
     def read_stream(self, stream_name: str) -> list[T]:

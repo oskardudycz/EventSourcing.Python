@@ -10,8 +10,6 @@ from appending_events_db.src.appending_events_db.model import Base
 
 postgres = PostgresContainer("postgres:17-alpine")
 
-connection_url = None
-
 
 @pytest.fixture(scope="session", autouse=True)
 def setup(request: pytest.FixtureRequest) -> str:
@@ -27,7 +25,6 @@ def setup(request: pytest.FixtureRequest) -> str:
     os.environ["DB_USERNAME"] = postgres.username
     os.environ["DB_PASSWORD"] = postgres.password
     os.environ["DB_NAME"] = postgres.dbname
-    global connection_url
     return cast(str, postgres.get_connection_url())
 
 

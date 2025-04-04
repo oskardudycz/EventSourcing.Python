@@ -104,40 +104,40 @@ def assert_product_item_exists(
 
 def decide(command: ShoppingCartCommand, state: ShoppingCart) -> ShoppingCartEvent:
     match command:
-        case OpenShoppingCart():
+        case OpenShoppingCart(data=command_data):
             if state.status != ShoppingCartStatus.Empty:
                 raise ShoppingCartException(ShoppingCartErrors.CartAlreadyExists)
             return ShoppingCartOpened(
                 data=ShoppingCartOpened.Data(
-                    shopping_cart_id=command.data.shopping_cart_id,
-                    client_id=command.data.client_id,
-                    opened_at=command.data.now,
+                    shopping_cart_id=command_data.shopping_cart_id,
+                    client_id=command_data.client_id,
+                    opened_at=command_data.now,
                 )
             )
-        case AddProductItemToShoppingCart():
+        case AddProductItemToShoppingCart(data=command_data):
             if state.status != ShoppingCartStatus.Pending:
                 raise ShoppingCartException(ShoppingCartErrors.CartAlreadyExists)
             return ProductItemAddedToShoppingCart(
                 data=ProductItemAddedToShoppingCart.Data(
-                    shopping_cart_id=command.data.shopping_cart_id,
-                    product_item=command.data.product_item,
+                    shopping_cart_id=command_data.shopping_cart_id,
+                    product_item=command_data.product_item,
                 )
             )
-        case RemoveProductItemFromShoppingCart():
+        case RemoveProductItemFromShoppingCart(data=command_data):
             if state.status != ShoppingCartStatus.Pending:
                 raise ShoppingCartException(ShoppingCartErrors.CartIsAlreadyClosed)
             # We already checked that state is Pending, so we can safely access product_items
             pending_state = cast(Pending, state)
             assert_product_item_exists(
-                pending_state.product_items, command.data.product_item
+                pending_state.product_items, command_data.product_item
             )
             return ProductItemRemovedFromShoppingCart(
                 data=ProductItemRemovedFromShoppingCart.Data(
-                    shopping_cart_id=command.data.shopping_cart_id,
-                    product_item=command.data.product_item,
+                    shopping_cart_id=command_data.shopping_cart_id,
+                    product_item=command_data.product_item,
                 )
             )
-        case ConfirmShoppingCart():
+        case ConfirmShoppingCart(data=command_data):
             # First check if the cart is in Pending status
             if state.status != ShoppingCartStatus.Pending:
                 raise ShoppingCartException(ShoppingCartErrors.CartAlreadyExists)
@@ -148,17 +148,17 @@ def decide(command: ShoppingCartCommand, state: ShoppingCart) -> ShoppingCartEve
                 raise ShoppingCartException(ShoppingCartErrors.CartIsEmpty)
             return ShoppingCartConfirmed(
                 data=ShoppingCartConfirmed.Data(
-                    shopping_cart_id=command.data.shopping_cart_id,
-                    confirmed_at=command.data.now,
+                    shopping_cart_id=command_data.shopping_cart_id,
+                    confirmed_at=command_data.now,
                 )
             )
-        case CancelShoppingCart():
+        case CancelShoppingCart(data=command_data):
             if state.status != ShoppingCartStatus.Pending:
                 raise ShoppingCartException(ShoppingCartErrors.CartIsAlreadyClosed)
             return ShoppingCartCanceled(
                 data=ShoppingCartCanceled.Data(
-                    shopping_cart_id=command.data.shopping_cart_id,
-                    canceled_at=command.data.now,
+                    shopping_cart_id=command_data.shopping_cart_id,
+                    canceled_at=command_data.now,
                 )
             )
         case _:

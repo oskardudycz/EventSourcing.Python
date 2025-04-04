@@ -1,6 +1,7 @@
 from decimal import Decimal
 from uuid import uuid4 as uuid
-from datetime import datetime, timezone
+from datetime import datetime, UTC
+import pytest
 
 
 from business_logic.src.business_logic import (
@@ -36,9 +37,9 @@ def test_business_logic() -> None:
 
     shopping_cart_id = str(uuid())
     client_id = str(uuid())
-    confirmed_at = datetime.now(timezone.utc)
-    canceled_at = datetime.now(timezone.utc)
-    current_time = datetime.now(timezone.utc)
+    confirmed_at = datetime.now(UTC)
+    canceled_at = datetime.now(UTC)
+    current_time = datetime.now(UTC)
     shoes_id = str(uuid())
     stream_name = f"shopping_cart_{shopping_cart_id}"
 
@@ -113,12 +114,12 @@ def test_business_logic() -> None:
             now=canceled_at,
         )
     )
-    try:
+
+    # Test that canceling a confirmed shopping cart raises ShoppingCartException
+    with pytest.raises(ShoppingCartException):
         state = get_shopping_cart_from_events(event_store.read_stream(stream_name))
         result = [decide(cancel, state)]
         event_store.append_events(stream_name, result)
-    except ShoppingCartException as e:
-        print(e)
 
     expected_events: list[ShoppingCartEvent] = [
         ShoppingCartOpened(

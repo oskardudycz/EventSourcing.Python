@@ -1,6 +1,6 @@
 from decimal import Decimal
 from uuid import uuid4 as uuid
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from sqlalchemy.orm import Session
 
 from events_definition.src.events_definition import (
@@ -23,7 +23,7 @@ def test_event_types_should_be_defined(db_session: Session) -> None:
     pair_of_socks = PricedProductItem(
         product_id=str(uuid()), quantity=2, unit_price=Decimal("10.0")
     )
-    current_time = datetime.now(timezone.utc)
+    current_time = datetime.now(UTC)
 
     events: list[ShoppingCartEvent] = [
         ShoppingCartOpened(

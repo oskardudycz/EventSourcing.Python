@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import Literal, ClassVar
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from enum import StrEnum
 
@@ -98,8 +98,7 @@ class ShoppingCart(BaseModel):
     confirmed_at: datetime | None = None
     canceled_at: datetime | None = None
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 def apply_shopping_cart_opened(

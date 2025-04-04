@@ -1,11 +1,12 @@
 from typing import Generic, TypeVar
+from collections import defaultdict
 
 T = TypeVar("T")
 
 
 class EventStore(Generic[T]):
     def __init__(self) -> None:
-        self.streams: dict[str, list[T]] = {}
+        self.streams: dict[str, list[T]] = defaultdict(list)
 
     def read_stream(self, stream_name: str) -> list[T]:
         return self.streams[stream_name]

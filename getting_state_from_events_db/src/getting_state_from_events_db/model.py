@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import ClassVar
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import func
 
 from sqlalchemy.orm import (
@@ -20,5 +20,4 @@ class Event(BaseModel):
     type: ClassVar[str]
     data: BaseModel
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)

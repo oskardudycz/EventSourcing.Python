@@ -1,6 +1,6 @@
 from decimal import Decimal
 from uuid import uuid4 as uuid
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 
 
 from appending_events_db.src.appending_events_db import (
@@ -26,7 +26,7 @@ def test_should_append_events_to_db(event_store: EventStore) -> None:
     pair_of_socks = PricedProductItem(
         product_id=str(uuid()), quantity=2, unit_price=Decimal("10.0")
     )
-    current_time = datetime.now(timezone.utc)
+    current_time = datetime.now(UTC)
 
     events: list[ShoppingCartEvent] = [
         ShoppingCartOpened(

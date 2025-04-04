@@ -158,12 +158,12 @@ def apply_product_item_added(
             event.data.product_item,
             lambda p: p.product_id == event.data.product_item.product_id
             and p.unit_price == event.data.product_item.unit_price,
-            lambda p: PricedProductItem(
+            lambda p, _: PricedProductItem(
                 product_id=p.product_id,
                 quantity=p.quantity + event.data.product_item.quantity,
                 unit_price=p.unit_price,
             ),
-            lambda: event.data.product_item,
+            on_not_found=lambda _: event.data.product_item,
         ),
     )
 
@@ -181,11 +181,12 @@ def apply_product_item_removed(
             event.data.product_item,
             lambda p: p.product_id == event.data.product_item.product_id
             and p.unit_price == event.data.product_item.unit_price,
-            lambda p: PricedProductItem(
+            lambda p, _: PricedProductItem(
                 product_id=p.product_id,
                 quantity=p.quantity - event.data.product_item.quantity,
                 unit_price=p.unit_price,
             ),
+            on_not_found=lambda _: None,
         ),
     )
 
