@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import Literal, ClassVar
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from enum import StrEnum
 
@@ -15,8 +15,7 @@ class Event(BaseModel):
     type: ClassVar[str]
     data: BaseModel
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class ProductItem(BaseModel):
@@ -101,5 +100,4 @@ class ShoppingCart(BaseModel):
     confirmed_at: datetime | None = None
     canceled_at: datetime | None = None
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)

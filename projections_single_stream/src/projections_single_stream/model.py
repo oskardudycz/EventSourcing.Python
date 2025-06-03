@@ -18,6 +18,21 @@ class Base(DeclarativeBase):
 
 class Event(BaseModel):
     type: ClassVar[str]
-    data: BaseModel
+
+    class Data(BaseModel):
+        pass
+
+    data: Data
+
+    model_config = ConfigDict(frozen=True)
+
+
+class Command(BaseModel):
+    type: ClassVar[str]
+
+    class Data(BaseModel):
+        pass
+
+    data: Data
 
     model_config = ConfigDict(frozen=True)

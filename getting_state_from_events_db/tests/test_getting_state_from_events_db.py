@@ -1,6 +1,6 @@
 from decimal import Decimal
 from uuid import uuid4 as uuid
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 
 
 from getting_state_from_events_db.src.getting_state_from_events_db import (
@@ -27,9 +27,9 @@ def test_getting_state_from_events_db(event_store: EventStore) -> None:
     """
     shopping_cart_id = str(uuid())
     client_id = str(uuid())
-    confirmed_at = datetime.now(timezone.utc)
-    canceled_at = datetime.now(timezone.utc)
-    current_time = datetime.now(timezone.utc)
+    confirmed_at = datetime.now(UTC)
+    canceled_at = datetime.now(UTC)
+    current_time = datetime.now(UTC)
     shoes_id = str(uuid())
     pair_of_shoes = PricedProductItem(
         product_id=shoes_id, quantity=1, unit_price=Decimal("100.0")

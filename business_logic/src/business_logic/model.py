@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
-from typing import ClassVar
-from pydantic import BaseModel, ConfigDict
+from typing import ClassVar, Any
+from pydantic import BaseModel
 from sqlalchemy import func
 
 from sqlalchemy.orm import (
@@ -18,6 +18,23 @@ class Base(DeclarativeBase):
 
 class Event(BaseModel):
     type: ClassVar[str]
-    data: BaseModel
 
-    model_config = ConfigDict(frozen=True)
+    class Data(BaseModel):
+        pass
+
+    data: Data
+
+    class Config:
+        frozen = True
+
+
+class Command(BaseModel):
+    type: ClassVar[str]
+
+    class Data(BaseModel):
+        pass
+
+    data: Any  # Allow subclasses to override with more specific types
+
+    class Config:
+        frozen = True

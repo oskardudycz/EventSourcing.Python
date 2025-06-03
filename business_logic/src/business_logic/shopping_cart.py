@@ -1,22 +1,17 @@
 from decimal import Decimal
-from typing import ClassVar, Literal
-
-from pydantic import BaseModel, ConfigDict
+from typing import Literal, ClassVar
+from pydantic import BaseModel
 from datetime import datetime
 from enum import StrEnum
-
-
-class ShoppingCartStatus(StrEnum):
-    Pending = "Pending"
-    Confirmed = "Confirmed"
-    Canceled = "Canceled"
+from .core import merge
 
 
 class Event(BaseModel):
     type: ClassVar[str]
     data: BaseModel
 
-    model_config = ConfigDict(frozen=True)
+    class Config:
+        frozen = True
 
 
 class ProductItem(BaseModel):
@@ -26,6 +21,13 @@ class ProductItem(BaseModel):
 
 class PricedProductItem(ProductItem):
     unit_price: Decimal
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PricedProductItem):
+            return False
+        return (
+            self.product_id == other.product_id and self.unit_price == other.unit_price
+        )
 
 
 class ShoppingCartOpened(Event):
@@ -92,26 +94,53 @@ type ShoppingCartEvent = (
 )
 
 
-class ShoppingCart(BaseModel):
-    id: str | None = None
-    client_id: str | None = None
-    status: ShoppingCartStatus = ShoppingCartStatus.Pending
-    product_items: list[PricedProductItem] = []
-    opened_at: datetime | None = None
-    confirmed_at: datetime | None = None
-    canceled_at: datetime | None = None
+class ShoppingCartStatus(StrEnum):
+    Empty = "Empty"
+    Pending = "Pending"
+    Confirmed = "Confirmed"
+    Canceled = "Canceled"
 
-    model_config = ConfigDict(frozen=True)
+
+class Empty(BaseModel):
+    status: ClassVar[ShoppingCartStatus] = ShoppingCartStatus.Empty
+
+
+class Pending(BaseModel):
+    id: str
+    status: ClassVar[ShoppingCartStatus] = ShoppingCartStatus.Pending
+    product_items: list[PricedProductItem] = []
+    client_id: str
+    opened_at: datetime
+
+
+class Confirmed(BaseModel):
+    id: str
+    status: ClassVar[ShoppingCartStatus] = ShoppingCartStatus.Confirmed
+    confirmed_at: datetime
+    product_items: list[PricedProductItem] = []
+    client_id: str
+
+
+class Canceled(BaseModel):
+    id: str
+    status: ClassVar[ShoppingCartStatus] = ShoppingCartStatus.Canceled
+    canceled_at: datetime
+    product_items: list[PricedProductItem] = []
+    client_id: str
+
+
+type ShoppingCart = Empty | Pending | Confirmed | Canceled
+
+empty_shopping_cart = Empty()
 
 
 def apply_shopping_cart_opened(
-    event: ShoppingCartOpened, _: ShoppingCart
+    event: ShoppingCartOpened, state: ShoppingCart
 ) -> ShoppingCart:
-    return ShoppingCart(
+    return Pending(
         id=event.data.shopping_cart_id,
-        client_id=event.data.client_id,
-        status=ShoppingCartStatus.Pending,
         product_items=[],
+        client_id=event.data.client_id,
         opened_at=event.data.opened_at,
     )
 
@@ -119,73 +148,57 @@ def apply_shopping_cart_opened(
 def apply_product_item_added(
     event: ProductItemAddedToShoppingCart, state: ShoppingCart
 ) -> ShoppingCart:
-    """
-    Handles the ProductItemAddedToShoppingCart event.
-    """
-    # Add the new product item
-    product_items = list(state.product_items)
-    product_items.append(event.data.product_item)
+    if not isinstance(state, Pending):
+        return state
 
-    # Group items by productId and unitPrice
-    grouped_items: dict[str, list[PricedProductItem]] = {}
-    for item in product_items:
-        key = f"{item.product_id}_{item.unit_price}"
-        if key not in grouped_items:
-            grouped_items[key] = []
-        grouped_items[key].append(item)
-
-    # Transform groups into final format
-    processed_items = [
-        PricedProductItem(
-            product_id=items[0].product_id,
-            quantity=sum(item.quantity for item in items),
-            unit_price=items[0].unit_price,
-        )
-        for items in grouped_items.values()
-    ]
-
-    # Return new state with updated product items, excluding product_items from the dump
-    state_dict = state.model_dump(exclude={"product_items"})
-    return ShoppingCart(**state_dict, product_items=processed_items)
+    return Pending(
+        **state.model_dump(exclude={"product_items"}),
+        product_items=merge(
+            state.product_items,
+            event.data.product_item,
+            lambda p: p.product_id == event.data.product_item.product_id
+            and p.unit_price == event.data.product_item.unit_price,
+            lambda p, _: PricedProductItem(
+                product_id=p.product_id,
+                quantity=p.quantity + event.data.product_item.quantity,
+                unit_price=p.unit_price,
+            ),
+            on_not_found=lambda _: event.data.product_item,
+        ),
+    )
 
 
 def apply_product_item_removed(
     event: ProductItemRemovedFromShoppingCart, state: ShoppingCart
 ) -> ShoppingCart:
-    """
-    Handles removing items by product ID and unit price, updating quantities appropriately.
-    """
-    # Find matching item and update quantity
-    updated_items = []
-    removed_item = event.data.product_item
+    if not isinstance(state, Pending):
+        return state
 
-    for item in state.product_items:
-        if (
-            item.product_id == removed_item.product_id
-            and item.unit_price == removed_item.unit_price
-        ):
-            new_quantity = item.quantity - removed_item.quantity
-            if new_quantity > 0:
-                updated_items.append(
-                    PricedProductItem(
-                        product_id=item.product_id,
-                        quantity=new_quantity,
-                        unit_price=item.unit_price,
-                    )
-                )
-        else:
-            updated_items.append(item)
-
-    return ShoppingCart(
-        **state.model_dump(exclude={"product_items"}), product_items=updated_items
+    return Pending(
+        **state.model_dump(exclude={"product_items"}),
+        product_items=merge(
+            state.product_items,
+            event.data.product_item,
+            lambda p: p.product_id == event.data.product_item.product_id
+            and p.unit_price == event.data.product_item.unit_price,
+            lambda p, _: PricedProductItem(
+                product_id=p.product_id,
+                quantity=p.quantity - event.data.product_item.quantity,
+                unit_price=p.unit_price,
+            ),
+            on_not_found=lambda _: None,
+        ),
     )
 
 
 def apply_shopping_cart_confirmed(
     event: ShoppingCartConfirmed, state: ShoppingCart
 ) -> ShoppingCart:
-    return ShoppingCart(
-        **state.model_dump(exclude={"confirmed_at"}),
+    if not isinstance(state, Pending):
+        return state
+
+    return Confirmed(
+        **state.model_dump(),
         confirmed_at=event.data.confirmed_at,
     )
 
@@ -193,12 +206,16 @@ def apply_shopping_cart_confirmed(
 def apply_shopping_cart_canceled(
     event: ShoppingCartCanceled, state: ShoppingCart
 ) -> ShoppingCart:
-    return ShoppingCart(
-        **state.model_dump(exclude={"canceled_at"}), canceled_at=event.data.canceled_at
+    if not isinstance(state, Pending):
+        return state
+
+    return Canceled(
+        **state.model_dump(),
+        canceled_at=event.data.canceled_at,
     )
 
 
-def evolve(event: Event, state: ShoppingCart) -> ShoppingCart:
+def evolve(event: ShoppingCartEvent, state: ShoppingCart) -> ShoppingCart:
     match event:
         case ShoppingCartOpened():
             return apply_shopping_cart_opened(event, state)
@@ -215,7 +232,7 @@ def evolve(event: Event, state: ShoppingCart) -> ShoppingCart:
 
 
 def get_shopping_cart_from_events(events: list[ShoppingCartEvent]) -> ShoppingCart:
-    state = ShoppingCart()
+    state: ShoppingCart = Empty()
     for event in events:
         state = evolve(event, state)
     return state
